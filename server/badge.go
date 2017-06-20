@@ -78,7 +78,7 @@ func GetCC(c *gin.Context) {
 		return
 	}
 
-	url := fmt.Sprintf("%s/%s/%d", httputil.GetURL(c.Request), repo.FullName, builds[0].Number)
+	url := fmt.Sprintf("%s/%s/%d", GetSystemUrl(c), repo.FullName, builds[0].Number)
 	cc := model.NewCC(repo, builds[0], url)
 	c.XML(200, cc)
 }

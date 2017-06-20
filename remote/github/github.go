@@ -36,6 +36,7 @@ type Opts struct {
 	PrivateMode bool     // GitHub is running in private mode.
 	SkipVerify  bool     // Skip ssl verification.
 	MergeRef    bool     // Clone pull requests using the merge ref.
+	Callback    string
 }
 
 // New returns a Remote implementation that integrates with a GitHub Cloud or
@@ -62,6 +63,7 @@ func New(opts Opts) (remote.Remote, error) {
 		Machine:     url.Host,
 		Username:    opts.Username,
 		Password:    opts.Password,
+		Callback:    opts.Callback,
 	}
 	if opts.URL != defaultURL {
 		remote.URL = strings.TrimSuffix(opts.URL, "/")
@@ -86,6 +88,7 @@ type client struct {
 	PrivateMode bool
 	SkipVerify  bool
 	MergeRef    bool
+	Callback    string
 }
 
 // Login authenticates the session and returns the remote user details.
@@ -371,6 +374,9 @@ func matchingHooks(hooks []github.Hook, rawurl string) *github.Hook {
 // Status sends the commit status to the remote system.
 // An example would be the GitHub pull request status.
 func (c *client) Status(u *model.User, r *model.Repo, b *model.Build, link string) error {
+	if c.Callback != nil {
+		link = c.Callback
+	}
 	client := c.newClientToken(u.Token)
 	switch b.Event {
 	case "deployment":
